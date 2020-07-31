@@ -52,7 +52,7 @@ export default function Login({ history }) {
             onChange={(evt) => setPassword(evt.target.value)}
           />
         </FormGroup>
-        <Button>Submit</Button>
+        <Button type="submt">Submit</Button>
       </Form>
     </Container>
   );

@@ -83,7 +83,7 @@ export default function Register({ history }) {
             onChange={(evt) => setPassword(evt.target.value)}
           />
         </FormGroup>
-        <Button>Submit</Button>
+        <Button type="submit">Submit</Button>
       </Form>
     </Container>
   );
