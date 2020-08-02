@@ -12,14 +12,15 @@ import {
 import cameraIcon from "../../assets/camera.png";
 import "./events.css";
 
-export default function EventsPage() {
+export default function EventsPage({ history }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [thumbnail, setThumbnail] = useState(null);
   const [sport, setSport] = useState("");
   const [date, setDate] = useState("");
-  const [errorMessage, setErrorMessage] = useState(false);
+  const [error, setError] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const preview = useMemo(() => {
     return thumbnail ? URL.createObjectURL(thumbnail) : null;
@@ -49,17 +50,16 @@ export default function EventsPage() {
         date !== "" &&
         thumbnail !== null
       ) {
-        console.log("Event has been sent");
         await api.post("/event", eventData, { headers: { user_id } });
-        console.log(eventData);
-        console.log("Event has been saved");
-      } else {
-        setErrorMessage(true);
+        setSuccess(true);
         setTimeout(() => {
-          setErrorMessage(false);
+          setSuccess(false);
         }, 2000);
-
-        console.log("Missing required data");
+      } else {
+        setError(true);
+        setTimeout(() => {
+          setError(false);
+        }, 2000);
       }
     } catch (error) {
       Promise.reject(error);
@@ -139,12 +139,33 @@ export default function EventsPage() {
             onChange={(evt) => setDate(evt.target.value)}
           />
         </FormGroup>
-        <Button type="submit">Create Event</Button>
+        <FormGroup>
+          <Button type="submit" className="submit-btn">
+            Create Event
+          </Button>
+        </FormGroup>
+        <FormGroup>
+          <Button
+            type="submit"
+            className="secondary-btn"
+            onClick={() => history.push("/")}
+          >
+            Dashboard
+          </Button>
+        </FormGroup>
       </Form>
-      {errorMessage ? (
+      {error ? (
         <Alert className="event-validation" color="danger">
-          {" "}
+          {""}
           Missing required information
+        </Alert>
+      ) : (
+        ""
+      )}
+      {success ? (
+        <Alert className="event-validation" color="success">
+          {" "}
+          The event was created successfully!
         </Alert>
       ) : (
         ""
