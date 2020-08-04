@@ -35,7 +35,10 @@ export default function Login({ history }) {
           setErrorMessage("");
         }, 2000);
       }
-    } catch (error) {}
+    } catch (error) {
+      setError(error);
+      setErrorMessage("Error, the server returned an error");
+    }
   };
 
   return (
