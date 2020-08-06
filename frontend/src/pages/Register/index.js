@@ -4,10 +4,10 @@ import {
   Button,
   Form,
   FormGroup,
-  Label,
-  Input,
   Container,
+  Input,
   Alert,
+  Label,
 } from "reactstrap";
 
 export default function Register({ history }) {
@@ -15,6 +15,7 @@ export default function Register({ history }) {
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -33,10 +34,13 @@ export default function Register({ history }) {
         firstName,
         lastName,
       });
-      const userId = response.data._id || false;
+      const user = response.data.user || false;
+      const user_id = response.data.user_id || false;
 
-      if (userId) {
-        localStorage.setItem("user", userId);
+      if (user && user_id) {
+        localStorage.setItem("user", user);
+        localStorage.setItem("user_id", user_id);
+
         history.push("/dashboard");
       } else {
         const { message } = response.data;
@@ -56,7 +60,6 @@ export default function Register({ history }) {
       }, 2000);
     }
   };
-
   return (
     <Container>
       <h2>Register:</h2>

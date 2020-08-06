@@ -18,13 +18,15 @@ export default function Login({ history }) {
 
   const handleSubmit = async (evt) => {
     evt.preventDefault();
-
     const response = await api.post("/login", { email, password });
-    const userId = response.data._id || false;
+    const user_id = response.data.user_id || false;
+    const user = response.data.user || false;
 
     try {
-      if (userId) {
-        localStorage.setItem("user", userId);
+      if (user && user_id) {
+        localStorage.setItem("user", user);
+        localStorage.setItem("user_id", user_id);
+
         history.push("/");
       } else {
         const { message } = response.data;
@@ -36,7 +38,7 @@ export default function Login({ history }) {
         }, 2000);
       }
     } catch (error) {
-      setError(error);
+      setError(true);
       setErrorMessage("Error, the server returned an error");
     }
   };
