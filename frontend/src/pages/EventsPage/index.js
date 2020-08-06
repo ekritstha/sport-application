@@ -59,6 +59,7 @@ export default function EventsPage({ history }) {
         setSuccess(true);
         setTimeout(() => {
           setSuccess(false);
+          history.push("/");
         }, 2000);
       } else {
         setError(true);
@@ -94,7 +95,7 @@ export default function EventsPage({ history }) {
               <img
                 src={cameraIcon}
                 style={{ maxWidth: "50px" }}
-                alt="upload icon image"
+                alt="upload icon"
               />
             </Label>
           </FormGroup>
@@ -163,7 +164,7 @@ export default function EventsPage({ history }) {
         </FormGroup>
         <FormGroup>
           <Button className="secondary-btn" onClick={() => history.push("/")}>
-            Dashboard
+            Cancel
           </Button>
         </FormGroup>
       </Form>

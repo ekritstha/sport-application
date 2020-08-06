@@ -25,11 +25,15 @@ export default function Dashboard({ history }) {
 
     setEvents(response.data);
   };
+  const myEventsHandler = async () => {
+    setRSelected("myevents");
+    const response = await api.get("/user/events", { headers: { user_id } });
+    setEvents(response.data);
+  };
 
   return (
     <>
-      <div>
-        Filter:
+      <div className="filter-panel">
         <ButtonGroup>
           <Button
             color="primary"
@@ -37,6 +41,13 @@ export default function Dashboard({ history }) {
             active={rSelected === null}
           >
             All Sports
+          </Button>
+          <Button
+            color="primary"
+            onClick={myEventsHandler}
+            active={rSelected === "myevents"}
+          >
+            My Events
           </Button>
           <Button
             color="primary"
