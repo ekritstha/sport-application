@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
 import api from "../../services/api";
 import moment from "moment";
-import { Button, ButtonGroup } from "reactstrap";
+import { Button, ButtonGroup, Alert } from "reactstrap";
 import "./dashboard.css";
 //Dashboard will show all the events
 export default function Dashboard({ history }) {
   const [events, setEvents] = useState([]);
   const user_id = localStorage.getItem("user");
-  const [cSelected, setCSelected] = useState([]);
   const [rSelected, setRSelected] = useState(null);
+  const [error, setError] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     getEvents();
@@ -19,16 +20,33 @@ export default function Dashboard({ history }) {
     getEvents(query);
   };
 
+  const myEventsHandler = async () => {
+    setRSelected("myevents");
+    const response = await api.get("/user/events", { headers: { user_id } });
+    setEvents(response.data);
+  };
+
   const getEvents = async (filter) => {
     const url = filter ? `/dashboard/${filter}` : "/dashboard";
     const response = await api.get(url, { headers: { user_id } });
 
     setEvents(response.data);
   };
-  const myEventsHandler = async () => {
-    setRSelected("myevents");
-    const response = await api.get("/user/events", { headers: { user_id } });
-    setEvents(response.data);
+
+  const deleteEventHandler = async (eventId) => {
+    try {
+      await api.delete(`/event/${eventId}`);
+      setSuccess(true);
+      setTimeout(() => {
+        setSuccess(false);
+        filterHandler(null);
+      }, 2500);
+    } catch (error) {
+      setError(true);
+      setTimeout(() => {
+        setError(false);
+      }, 2000);
+    }
   };
 
   return (
@@ -78,9 +96,21 @@ export default function Dashboard({ history }) {
       <ul className="events-list">
         {events.map((event) => (
           <li key={event._id}>
-            <header
-              style={{ backgroundImage: `url(${event.thumbnail_url})` }}
-            />
+            <header style={{ backgroundImage: `url(${event.thumbnail_url})` }}>
+              {event.user === user_id ? (
+                <div>
+                  <Button
+                    color="danger"
+                    size="sm"
+                    onClick={() => deleteEventHandler(event._id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              ) : (
+                ""
+              )}
+            </header>
             <strong>{event.title}</strong>
             <span>Event Date: {moment(event.date).format("l")}</span>
             <span>Event Price: {parseFloat(event.price).toFixed(2)}</span>
@@ -89,6 +119,22 @@ export default function Dashboard({ history }) {
           </li>
         ))}
       </ul>
+      {error ? (
+        <Alert className="event-validation" color="danger">
+          {" "}
+          Error when deleting event!{" "}
+        </Alert>
+      ) : (
+        ""
+      )}
+      {success ? (
+        <Alert className="event-validation" color="success">
+          {" "}
+          The event was deleted successfully!
+        </Alert>
+      ) : (
+        ""
+      )}
     </>
   );
 }
