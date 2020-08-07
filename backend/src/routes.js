@@ -4,12 +4,12 @@ const verifyToken = require("./config/verifyToken");
 
 const UserController = require("./controllers/UserController");
 const EventController = require("./controllers/EventController");
-const DashboardController = require("./Controllers/DashboardController");
+const DashboardController = require("./controllers/DashboardController");
+const LoginController = require("./controllers/LoginController");
+const RegistrationController = require("./controllers/RegistrationController");
+const ApprovalController = require("./controllers/ApprovalController");
+const RejectionController = require("./controllers/RejectionController");
 const uploadConfig = require("./config/upload");
-const LoginController = require("./Controllers/LoginController");
-const RegistrationController = require("./Controllers/RegistrationController");
-const ApprovalController = require("./Controllers/AprovalController");
-const RejectionController = require("./Controllers/RejectionController");
 
 const routes = express.Router();
 const upload = multer(uploadConfig);
@@ -19,21 +19,21 @@ routes.get("/status", (req, res) => {
 });
 
 //Registration
-routes.post("/registration/:eventId", RegistrationController.create);
+routes.post(
+  "/registration/:eventId",
+  verifyToken,
+  RegistrationController.create
+);
 routes.get(
   "/registration/:registration_id",
   RegistrationController.getRegistration
 );
-
-//Aproval
 routes.post(
-  "/registration/:registration_id/approval",
+  "/registration/:registration_id/approvals",
   ApprovalController.approval
 );
-
-//Rejection
 routes.post(
-  "/registration/:registration_id/rejection",
+  "/registration/:registration_id/rejections",
   RejectionController.rejection
 );
 
@@ -41,12 +41,12 @@ routes.post(
 routes.post("/login", LoginController.store);
 
 //Dashboard
-routes.get("/dashboard", verifyToken, DashboardController.getAllEvents);
 routes.get("/dashboard/:sport", verifyToken, DashboardController.getAllEvents);
+routes.get("/dashboard", verifyToken, DashboardController.getAllEvents);
 routes.get("/user/events", verifyToken, DashboardController.getEventsByUserId);
 routes.get("/event/:eventId", verifyToken, DashboardController.getEventById);
 
-//Event
+//Events
 routes.post(
   "/event",
   verifyToken,
