@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import api from "../../services/api";
 import moment from "moment";
 import { Button, ButtonGroup, Alert } from "reactstrap";
@@ -14,16 +14,22 @@ export default function Dashboard({ history }) {
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
   const [messageHandler, setMessageHandler] = useState("");
+  const [eventsRequest, setEventsRequest] = useState([]);
 
   useEffect(() => {
     getEvents();
   }, []);
 
-  useEffect(() => {
-    const socket = socketio("http://localhost:8000/", { query: { user_id } });
+  const socket = useMemo(
+    () => socketio("http://localhost:8000/", { query: { user: user_id } }),
+    [user_id]
+  );
 
-    socket.on("registration_request", (data) => console.log(data));
-  }, []);
+  useEffect(() => {
+    socket.on("registration_request", (data) =>
+      setEventsRequest([...eventsRequest, data])
+    );
+  }, [eventsRequest, socket]);
 
   const filterHandler = (query) => {
     setRSelected(query);
@@ -33,9 +39,7 @@ export default function Dashboard({ history }) {
   const myEventsHandler = async () => {
     try {
       setRSelected("myevents");
-      const response = await api.get("/user/events", {
-        headers: { user: user },
-      });
+      const response = await api.get("/user/events", { headers: { user } });
       setEvents(response.data.events);
     } catch (error) {
       history.push("/login");
@@ -45,7 +49,7 @@ export default function Dashboard({ history }) {
   const getEvents = async (filter) => {
     try {
       const url = filter ? `/dashboard/${filter}` : "/dashboard";
-      const response = await api.get(url, { headers: { user: user } });
+      const response = await api.get(url, { headers: { user } });
 
       setEvents(response.data.events);
     } catch (error) {
@@ -84,7 +88,9 @@ export default function Dashboard({ history }) {
       await api.post(`/registration/${event.id}`, {}, { headers: { user } });
 
       setSuccess(true);
-      setMessageHandler(`The request for the event ${event.title} was sent!`);
+      setMessageHandler(
+        `The request for the event ${event.title} was successfully!`
+      );
       setTimeout(() => {
         setSuccess(false);
         filterHandler(null);
@@ -93,7 +99,7 @@ export default function Dashboard({ history }) {
     } catch (error) {
       setError(true);
       setMessageHandler(
-        `The request for the event ${event.title} can't be sent!`
+        `The request for the event ${event.title} wasn't successfully!`
       );
       setTimeout(() => {
         setError(false);
@@ -104,6 +110,27 @@ export default function Dashboard({ history }) {
 
   return (
     <>
+      <ul className="notifications">
+        {eventsRequest.map((request) => {
+          console.log(request);
+          return (
+            <li key={request.id}>
+              <div>
+                <strong>{request.user.email} </strong> is requesting to register
+                to your Event <strong>{request.event.title}</strong>
+              </div>
+              <ButtonGroup>
+                <Button color="secondary" onClick={() => {}}>
+                  Accept
+                </Button>
+                <Button color="danger" onClick={() => {}}>
+                  Cancel
+                </Button>
+              </ButtonGroup>
+            </li>
+          );
+        })}
+      </ul>
       <div className="filter-panel">
         <ButtonGroup>
           <Button
@@ -185,7 +212,7 @@ export default function Dashboard({ history }) {
       {error ? (
         <Alert className="event-validation" color="danger">
           {" "}
-          {messageHandler}
+          {messageHandler}{" "}
         </Alert>
       ) : (
         ""

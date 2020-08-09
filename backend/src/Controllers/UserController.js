@@ -1,36 +1,38 @@
-const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const User = require("../models/User");
+const jwt = require("jsonwebtoken");
 
 module.exports = {
   async createUser(req, res) {
     try {
-      const { firstName, lastName, password, email } = req.body;
-
+      const { email, firstName, lastName, password } = req.body;
       const existentUser = await User.findOne({ email });
 
       if (!existentUser) {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const user = await User.create({
+        const hashPassword = await bcrypt.hash(password, 10);
+        const userResponse = await User.create({
+          email,
           firstName,
           lastName,
-          email,
-          password: hashedPassword,
+          password: hashPassword,
         });
-        return res.json({
-          _id: user._id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
+
+        return jwt.sign({ user: userResponse }, "secret", (err, token) => {
+          return res.json({
+            user: token,
+            user_id: userResponse._id,
+          });
         });
       } else {
         return res.status(400).json({
-          message: "email/user already exist! want to login instead?",
+          message: "email already exist!  do you want to login instead? ",
         });
       }
-    } catch (error) {
-      throw Error(`Error while regiatering a new user: ${error}`);
+    } catch (err) {
+      throw Error(`Error while Registering new user :  ${err}`);
     }
   },
+
   async getUserById(req, res) {
     const { userId } = req.params;
 
@@ -39,7 +41,7 @@ module.exports = {
       return res.json(user);
     } catch (error) {
       return res.status(400).json({
-        message: "user not found! want to register instead?",
+        message: "User ID does not exist, do you want to register instead?",
       });
     }
   },

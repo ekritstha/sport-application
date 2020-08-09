@@ -34,6 +34,7 @@ export default function Register({ history }) {
         firstName,
         lastName,
       });
+      console.log(response);
       const user = response.data.user || false;
       const user_id = response.data.user_id || false;
 
@@ -41,7 +42,7 @@ export default function Register({ history }) {
         localStorage.setItem("user", user);
         localStorage.setItem("user_id", user_id);
 
-        history.push("/dashboard");
+        history.push("/");
       } else {
         const { message } = response.data;
         setError(true);
@@ -60,6 +61,7 @@ export default function Register({ history }) {
       }, 2000);
     }
   };
+
   return (
     <Container>
       <h2>Register:</h2>
@@ -76,7 +78,7 @@ export default function Register({ history }) {
               type="text"
               name="firstName"
               id="firstName"
-              placeholder="Your first name..."
+              placeholder="Your first name"
               onChange={(evt) => setFirstName(evt.target.value)}
             />
           </FormGroup>
@@ -88,7 +90,7 @@ export default function Register({ history }) {
               type="text"
               name="lastName"
               id="lastName"
-              placeholder="Your last name..."
+              placeholder="Your last name"
               onChange={(evt) => setLastName(evt.target.value)}
             />
           </FormGroup>
@@ -100,7 +102,7 @@ export default function Register({ history }) {
               type="email"
               name="email"
               id="email"
-              placeholder="Your email..."
+              placeholder="Your email"
               onChange={(evt) => setEmail(evt.target.value)}
             />
           </FormGroup>
@@ -112,23 +114,20 @@ export default function Register({ history }) {
               type="password"
               name="password"
               id="password"
-              placeholder="You password..."
+              placeholder="Your password"
               onChange={(evt) => setPassword(evt.target.value)}
             />
           </FormGroup>
         </div>
         <FormGroup>
-          <Button type="submit" className="submit-btn">
-            Submit
-          </Button>
+          <Button className="submit-btn">Submit</Button>
         </FormGroup>
         <FormGroup>
           <Button
-            type="submit"
             className="secondary-btn"
             onClick={() => history.push("/login")}
           >
-            Login
+            Login instead?
           </Button>
         </FormGroup>
       </Form>
